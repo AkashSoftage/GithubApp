@@ -1,0 +1,23 @@
+name: Archive Old Repositories
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Set the schedule as needed (e.g., every day at midnight)
+
+jobs:
+  archive-old-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Archive Old Repositories
+        run: |
+          # Logic to identify and archive old repositories (replace with your criteria)
+          # Example: Archive repositories older than 1 year (365 days)
+          for repo in $(gh repo list --json name,created_at --paginate | jq -r '.[] | select((now - .created_at) / 86400 > 365) | .name'); do
+            gh api --method PATCH /repos/:owner/$repo -f archived=true
+            echo "Repository $repo has been archived."
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
